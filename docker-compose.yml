@@ -1,0 +1,44 @@
+version: '3'
+services:
+  cnil-pia-back:
+    container_name: LINCnil-pia-back
+    build: docker/cnil-pia-back
+    restart: always
+    environment:
+      DATABASE_HOST: ${DB_HOST}
+      DATABASE_USERNAME: ${DB_USERNAME}
+      DATABASE_PASSWORD: ${DB_PASSWORD}
+      SECRET_KEY_BASE: ${DB_SECRET}
+    links:
+      - cnilpiadatabase
+    depends_on:
+      - cnilpiadatabase
+    ports:
+      -  0.0.0.0:${DOCKER_BACK_PORT}:3000
+
+  cnil-pia-front:
+    container_name: LINCnil-pia-front
+    build: docker/cnil-pia-front
+    restart: always
+    links:
+      - cnil-pia-back
+    depends_on:
+      - cnil-pia-back
+    ports:
+      - 0.0.0.0:${DOCKER_FRONT_PORT}:80
+
+  cnilpiadatabase:
+    container_name: LINCnil-pia-db
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - 0.0.0.0:${DOCKER_MYSQL_PORT}:5432
+    volumes:
+      - ${DOCKER_DB_DIRECTORY}:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+
+
